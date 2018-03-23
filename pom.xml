@@ -106,6 +106,7 @@ LICENSE file.
     <tarantool.version>1.6.5</tarantool.version>
     <thrift.version>0.8.0</thrift.version>
     <voldemort.version>0.81</voldemort.version>
+    <vasto.version>0.1-beta</vasto.version>
   </properties>
 
   <modules>

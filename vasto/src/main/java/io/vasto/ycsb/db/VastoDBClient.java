@@ -34,7 +34,7 @@ import java.util.Vector;
 
 public class VastoDBClient extends DB {
 
-  private static final Logger logger = Logger.getLogger(VastoDBClient.class);
+  private static final Logger LOGGER = Logger.getLogger(VastoDBClient.class);
   protected static final ObjectMapper MAPPER = new ObjectMapper();
 
   private ClusterClient clusterClient;
@@ -64,7 +64,7 @@ public class VastoDBClient extends DB {
 
     this.clusterClient = client.newClusterClient(keyspace);
 
-    logger.info("vasto connection created with " + this.masterHost);
+    LOGGER.info("vasto connection created with " + this.masterHost);
   }
 
   @Override
@@ -78,7 +78,7 @@ public class VastoDBClient extends DB {
         fromJson(new String(valueObject.getValue().toByteArray()), fields, result);
       }
     } catch (Exception e) {
-      logger.error("Error encountered for key: " + key, e);
+      LOGGER.error("Error encountered for key: " + key, e);
       return Status.ERROR;
     }
 
@@ -104,7 +104,7 @@ public class VastoDBClient extends DB {
     try {
       this.clusterClient.put(k, new ValueObject(toJson(values).getBytes(), OpAndDataType.BYTES));
     } catch (Exception e) {
-      logger.error("Error encountered for key: " + key, e);
+      LOGGER.error("Error encountered for key: " + key, e);
       return Status.ERROR;
     }
 
