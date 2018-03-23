@@ -153,6 +153,7 @@ LICENSE file.
     <module>solr</module>
     <module>solr6</module>
     <module>tarantool</module>
+    <module>vasto</module>
     <!--<module>voldemort</module>-->
   </modules>
 
