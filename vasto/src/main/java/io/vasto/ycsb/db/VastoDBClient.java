@@ -8,9 +8,11 @@ import com.yahoo.ycsb.StringByteIterator;
 import io.grpc.Context;
 import io.vasto.ClusterClient;
 import io.vasto.KeyObject;
+import io.vasto.KeyTypeValue;
 import io.vasto.OpAndDataType;
 import io.vasto.ValueObject;
 import io.vasto.VastoClient;
+import io.vasto.query.PrefixQuery;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonGenerator;
@@ -23,6 +25,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -75,10 +78,14 @@ public class VastoDBClient extends DB {
     try {
       ValueObject valueObject = clusterClient.get(k);
       if (valueObject != null) {
+        if (valueObject.getValue().isEmpty()) {
+          System.out.println("k=" + key + " value=" + new String(valueObject.getValue().toByteArray()));
+        }
         fromJson(new String(valueObject.getValue().toByteArray()), fields, result);
       }
     } catch (Exception e) {
       LOGGER.error("Error encountered for key: " + key, e);
+      e.printStackTrace();
       return Status.ERROR;
     }
 
@@ -88,7 +95,23 @@ public class VastoDBClient extends DB {
   @Override
   public Status scan(String table, String startkey, int recordcount,
                      Set<String> fields, Vector<HashMap<String, ByteIterator>> result) {
-    return Status.NOT_IMPLEMENTED;
+
+    PrefixQuery prefixQuery = new PrefixQuery(startkey.getBytes(), 0, new byte[0], 10000);
+
+    try {
+      List<KeyTypeValue> rows = clusterClient.prefix(prefixQuery);
+      for (KeyTypeValue row : rows) {
+        HashMap<String, ByteIterator> t = new HashMap<>();
+        fromJson(new String(row.getValue().toByteArray()), fields, t);
+        result.add(t);
+      }
+    } catch (Exception e) {
+      LOGGER.error("Error encountered for scanning key: " + startkey, e);
+      e.printStackTrace();
+      return Status.ERROR;
+    }
+
+    return Status.OK;
   }
 
   @Override
